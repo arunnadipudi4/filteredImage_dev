@@ -34,16 +34,27 @@ import {filterImageFromURL, deleteLocalFiles, checkURL} from './util/util';
 
   app.get( "/filteredimage", async ( req, res ) => {
     const {image_url} = req.query;
+
+    console.log('image_url*******', image_url);
     if(image_url.length === 0) {
       res.status(500).send("Please enter a URL in the form /filteredimage?image_url={{}}");
     }
+    console.log('check url*******', checkURL(image_url))
     if(!checkURL(image_url)) {
       res.status(500).send("not a valid URL")
     }
-    const filtered_url = await filterImageFromURL(image_url);
-    res.status(200).sendFile(filtered_url, () => {
-      deleteLocalFiles([filtered_url]);
-    })
+    let filtered_url = ''
+    try {
+       filtered_url = await filterImageFromURL(image_url);
+    }
+    catch(e) {
+      res.status(400).send(`error processing the request ${e}`);
+    }
+      console.log('filtered url*******', filtered_url);
+      res.status(200).sendFile(filtered_url, () => {
+        deleteLocalFiles([filtered_url]);
+      })
+  
   });
 
   
